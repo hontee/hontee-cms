@@ -12,40 +12,36 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
-import com.hontee.commons.db.entity.Platform;
-import com.hontee.commons.db.entity.PlatformExample;
-import com.hontee.commons.service.PlatformService;
+import com.hontee.commons.db.entity.Category;
+import com.hontee.commons.db.entity.CategoryExample;
+import com.hontee.commons.service.CategoryService;
 import com.hontee.commons.support.Pagination;
 
 @Controller
-@RequestMapping("platforms")
-public class PlatformController {
-	
+@RequestMapping("cates")
+public class CategoryController {
+
 	@Resource
-	private PlatformService platformService;
+	private CategoryService categoryService;
 	
-	/**
-	 * 平台管理首页
-	 * @return
-	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public String platformIndex() {
-		return "cms/platforms/index";
+	public String categoryIndex() {
+		return "cms/cates/index";
 	}
 	
-	@RequestMapping("/list")
-	public @ResponseBody DataGrid<Platform> platformIndex(
+	@RequestMapping(value = "/list")
+	public @ResponseBody DataGrid<Category> categoryIndex(
 			@RequestParam(required = false) String title, 
 			@RequestParam(required = false, defaultValue = "1") Integer page,
 			@RequestParam(required = false, defaultValue = "10") Integer rows) {
-		// 构建查询条件
-		PlatformExample example = new PlatformExample();
+		
+		CategoryExample example = new CategoryExample();
 		if (StringUtils.isNotBlank(title)) {
 			// 支持标题的模糊查询
 			example.createCriteria().andTitleLike(title);
 		}
-		PageInfo<Platform> pageInfo = platformService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo, "结果集不能为空");
+		PageInfo<Category> pageInfo = categoryService.findByExample(example, new Pagination(page, rows));
+		Preconditions.checkNotNull(pageInfo);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 

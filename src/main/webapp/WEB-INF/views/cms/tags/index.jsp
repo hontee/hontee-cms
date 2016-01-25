@@ -1,18 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="../../header.jsp" %>
-<title>平台管理 - Hontee.CMS</title>
+<title>标签管理 - Hontee.CMS</title>
 </head>
 <body>
 <table id="dg"></table>
 
 <script>
 $('#dg').datagrid({
-    url:'/cms/platforms/list',
+    url:'/cms/tags/list',
     fitColumns: true,
     idField: "id",
     rownumbers: true,
     pagination: true,
-    title:'平台管理',
+    title:'标签管理',
     fit: true,
     columns:[[
         {field: 'id', checkbox: true},
@@ -25,7 +25,6 @@ $('#dg').datagrid({
     ]]
 });
 </script>
-
 
 </body>
 </html>

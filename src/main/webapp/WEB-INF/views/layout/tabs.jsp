@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<div class="easyui-tabs" data-options="fit:true,border:false">
+<div id="homeTabs" class="easyui-tabs">
     <div title="首页" style="padding:10px">
         <p style="font-size:14px">jQuery EasyUI framework helps you build your web pages easily.</p>
         <ul>
@@ -12,9 +12,15 @@
         </ul>
     </div>
     <div title="My Documents" style="padding:10px">
-        <ul class="easyui-tree" data-options="url:'tree_data1.json',method:'get',animate:true"></ul>
+        <ul class="easyui-tree" data-options="href:'/cms/platforms',method:'get',animate:true"></ul>
     </div>
     <div title="Help" data-options="closable:true" style="padding:10px">
         This is the help content.
     </div>
 </div>
+<script>
+$('#homeTabs').tabs({
+	fit:true,
+	border:false
+});
+</script>
