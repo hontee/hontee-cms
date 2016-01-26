@@ -1,5 +1,7 @@
 package com.hontee.cms.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +45,11 @@ public class MenuController {
 		PageInfo<Menu> pageInfo = menuService.findByExample(example, new Pagination(page, rows));
 		Preconditions.checkNotNull(pageInfo);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+	}
+	
+	@RequestMapping("/datalist")
+	public @ResponseBody List<Menu> datalist() {
+		return menuService.findByExample(new MenuExample());
 	}
 
 }

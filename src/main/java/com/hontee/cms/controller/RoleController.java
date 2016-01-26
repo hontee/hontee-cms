@@ -12,35 +12,36 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
-import com.hontee.commons.db.entity.Platform;
-import com.hontee.commons.db.entity.PlatformExample;
-import com.hontee.commons.service.PlatformService;
+import com.hontee.commons.db.entity.Role;
+import com.hontee.commons.db.entity.RoleExample;
+import com.hontee.commons.service.RoleService;
 import com.hontee.commons.support.Pagination;
 
 @Controller
-@RequestMapping("platforms")
-public class PlatformController {
+@RequestMapping("roles")
+public class RoleController {
 	
 	@Resource
-	private PlatformService platformService;
+	private RoleService roleService;
 	
-	// 平台管理首页
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public String index() {
-		return "cms/platforms/index";
+	public String roleIndex() {
+		return "cms/roles/index";
 	}
 	
-	@RequestMapping("/list")
-	public @ResponseBody DataGrid<Platform> dataGrid(@RequestParam(required = false) String title, Pagination p) {
-		// 构建查询条件
-		PlatformExample example = new PlatformExample();
-
+	@RequestMapping(value = "/list")
+	public @ResponseBody DataGrid<Role> roleIndex(
+			@RequestParam(required = false) String title, 
+			@RequestParam(required = false, defaultValue = "1") Integer page,
+			@RequestParam(required = false, defaultValue = "10") Integer rows) {
+		
+		RoleExample example = new RoleExample();
 		if (StringUtils.isNotBlank(title)) {
 			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike("%" + title + "%");
+			example.createCriteria().andTitleLike(title);
 		}
-		PageInfo<Platform> pageInfo = platformService.findByExample(example, p);
-		Preconditions.checkNotNull(pageInfo, "结果集不能为空");
+		PageInfo<Role> pageInfo = roleService.findByExample(example, new Pagination(page, rows));
+		Preconditions.checkNotNull(pageInfo);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 

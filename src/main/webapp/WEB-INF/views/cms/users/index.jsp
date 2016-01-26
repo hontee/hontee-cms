@@ -1,14 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="../../header.jsp" %>
+<%@ include file="../../_header.jsp" %>
 <title>用户管理 - Hontee.CMS</title>
 </head>
 <body>
-<table id="dg"></table>
-
+<table id="users-dg"></table>
 <script>
-$('#dg').datagrid({
+$('#users-dg').datagrid({
     url:'/cms/users/list',
     fitColumns: true,
+    border: false,
     idField: "id",
     rownumbers: true,
     pagination: true,
@@ -30,6 +30,5 @@ $('#dg').datagrid({
     ]]
 });
 </script>
-
 </body>
 </html>
