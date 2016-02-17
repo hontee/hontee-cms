@@ -15,6 +15,9 @@
 	</span>
 </header>
 <table id="platforms-dg"></table>
+<footer>
+    <div id="platforms-add-win"></div>
+</footer>
 <script>
 // 变量取值要唯一
 var platformsEL = {
@@ -24,6 +27,7 @@ var platformsEL = {
 	cut: $("#platforms-cut"),
 	reload: $("#platforms-reload"),
 	dg: $("#platforms-dg"),
+	addWin: $("#platforms-add-win")
 };
 
 // DataGrid
@@ -42,9 +46,19 @@ platformsEL.dg.datagrid({
         {field:'name',title:'名称',width:100, sortable: true},
         {field:'title',title:'标题',width:100, sortable: true},
         {field:'description',title:'描述',width:100},
-        {field:'state',title:'状态',width:100, sortable: true},
-        {field:'created',title:'创建时间',width:100, sortable: true},
-        {field:'lastModified',title:'最后更新时间',width:100, sortable: true}
+        {field:'state',title:'状态',width:100, sortable: true, formatter: function(value,row,index) {
+        	if (value == '1') {
+				return '启用';
+			} else {
+				return '禁用';
+			}
+        }},
+        {field:'created',title:'创建时间',width:100, sortable: true, formatter: function(value,row,index) {
+        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        }},
+        {field:'lastModified',title:'最后更新时间',width:100, sortable: true, formatter: function(value,row,index) {
+        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        }}
     ]],
  	// 当选择一行时触发
     onSelect: function(index,row) {
@@ -96,7 +110,18 @@ function search(value){
 
 // 新建
 platformsEL.add.click(function() {
-	alert("add");
+	platformsEL.addWin.window({
+		width: 360,
+		height: 440,
+		modal: true,
+		title: '新建平台类型',
+		collapsible: false,
+		minimizable: false,
+		maximizable: false,
+		href: '/cms/platforms/new',
+		method: 'get',
+		cache: false
+	});
 });
 
 // 编辑
@@ -106,7 +131,23 @@ platformsEL.edit.click(function() {
 
 // 删除
 platformsEL.remove.click(function() {
-	alert("remove");
+	var row = platformsEL.dg.datagrid('getSelected');
+	if (row) {
+		$.messager.confirm('提示信息', '确定要删除吗?', function(ok){
+			if (ok){
+				var url = '/cms/platforms/'+row.id +'/delete';
+				$.post(url, function(data) {
+					var r = $.parseJSON(data);
+					if (r.success) {
+						$.messager.alert("提示信息", "删除成功！", "info");
+						platformsEL.dg.datagrid('reload',{}); // 重新加载
+					} else {
+						$.messager.alert("删除失败", r.error.message, "error");
+					}
+				});
+			} 
+		});
+	}
 });
 
 // 批量删除
