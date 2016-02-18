@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -48,8 +47,23 @@ public class PlatformController {
 			example.createCriteria().andTitleLike("%" + title + "%");
 		}
 		PageInfo<Platform> pageInfo = platformService.findByExample(example, p);
-		Preconditions.checkNotNull(pageInfo, "结果集不能为空");
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+	}
+	
+	private Platform findById(Long id) throws Exception {
+		return platformService.findByPrimaryKey(id);
+	}
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public String view(@PathVariable Long id, Model model) {
+		try {
+			model.addAttribute("record", findById(id));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "cms/platforms/view";
 	}
 	
 	// 新建平台页面
@@ -103,16 +117,30 @@ public class PlatformController {
 	// 进入编辑页面
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.GET)
 	public String editPage(@PathVariable Long id, Model model) throws Exception {
-		Platform platform = platformService.findByPrimaryKey(id);
-		model.addAttribute("platform", platform);
+		Platform record = findById(id);
+		model.addAttribute("record", record);
 		return "cms/platforms/edit";
 	}
 	
 	// 编辑提交
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Platform platform) {
-		
-		return ResultBuilder.ok();
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
+		try {
+			Platform record = new Platform();
+			record.setId(id);
+			record.setName(name);
+			record.setTitle(title);
+			record.setState(state);
+			record.setDescription(description);
+			platformService.updateByPrimaryKeySelective(record);
+			return ResultBuilder.ok();
+		} catch (Exception e) {
+			return ResultBuilder.failed(e);
+		}
 	}
 
 }

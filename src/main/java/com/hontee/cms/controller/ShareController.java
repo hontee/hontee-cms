@@ -1,6 +1,7 @@
 package com.hontee.cms.controller;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
 import com.hontee.commons.db.entity.Share;
 import com.hontee.commons.db.entity.ShareExample;
 import com.hontee.commons.exception.BusinessException;
+import com.hontee.commons.http.FetchUtils;
+import com.hontee.commons.http.FetchUtils.WebModel;
 import com.hontee.commons.service.ShareService;
 import com.hontee.commons.support.Pagination;
 
@@ -37,18 +39,13 @@ public class ShareController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Share> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Share> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		ShareExample example = new ShareExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Share> pageInfo = shareService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Share> pageInfo = shareService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -67,22 +64,36 @@ public class ShareController {
 		
 		return "cms/shares/view";
 	}
-
+	
+	@RequestMapping(value = "/share", method = RequestMethod.GET)
+	public String sharePage() {
+		return "cms/shares/share";
+	}
+	
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
-	public String addPage() {
+	public String addPage(@RequestParam String url, Model model) {
+		WebModel wm = FetchUtils.connect(url);
+		model.addAttribute("web", wm);
 		return "cms/shares/new";
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
-		Share record = new Share();
-		/*record.setCreateBy(createBy);
-		record.setDescription(description);
-		record.setName(name);
-		record.setParent(parent);
-		record.setState(state);
-		record.setTitle(title);*/
+	public @ResponseBody Result add(
+			@RequestParam String url, 
+			@RequestParam String title, 
+			@RequestParam String keywords, 
+			@RequestParam String description) {
 		try {
+			Share record = new Share();
+			record.setCatId(1L);
+			record.setCreateBy(1L);
+			record.setDescription(description);
+			record.setKeywords(keywords);
+			record.setName(UUID.randomUUID().toString());
+			record.setPlatforms("Web");
+			record.setState((byte)1);
+			record.setTitle(title);
+			record.setUrl(url);
 			shareService.addSelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
@@ -116,18 +127,28 @@ public class ShareController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO
 		}
 		return "cms/shares/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Share record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String title, 
+			@RequestParam String keywords, 
+			@RequestParam String description,
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
-			shareService.updateByPrimaryKey(record);
+			Share record = new Share();
+			record.setId(id);
+			record.setDescription(description);
+			record.setKeywords(keywords);
+			record.setState(state);
+			record.setTitle(title);
+			shareService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);
 		}
 	}
+	
 }

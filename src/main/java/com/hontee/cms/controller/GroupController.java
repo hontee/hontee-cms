@@ -1,6 +1,7 @@
 package com.hontee.cms.controller;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -37,26 +37,19 @@ public class GroupController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Group> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Group> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		GroupExample example = new GroupExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Group> pageInfo = groupService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Group> pageInfo = groupService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
-
 	
 	private Group findById(Long id) throws Exception {
 		return groupService.findByPrimaryKey(id);
 	}
-
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public String view(@PathVariable Long id, Model model) {
@@ -76,14 +69,17 @@ public class GroupController {
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
+	public @ResponseBody Result add(@RequestParam String title, @RequestParam String tags, String description) {
 		Group record = new Group();
-		/*record.setCreateBy(createBy);
+		record.setCount(0);
+		record.setCreateBy(1L);
 		record.setDescription(description);
-		record.setName(name);
-		record.setParent(parent);
-		record.setState(state);
-		record.setTitle(title);*/
+		record.setName(UUID.randomUUID().toString());
+		record.setOrgType((byte)1);
+		record.setStars(0);
+		record.setState((byte) 1);
+		record.setTags(tags);
+		record.setTitle(title);
 		try {
 			groupService.addSelective(record);
 			return ResultBuilder.ok();
@@ -91,7 +87,6 @@ public class GroupController {
 			return ResultBuilder.failed(e);
 		}
 	}
-
 	
 	@RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
 	public @ResponseBody Result delete(@PathVariable Long id) {
@@ -124,9 +119,21 @@ public class GroupController {
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Group record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name,
+			@RequestParam String title, 
+			@RequestParam String tags,
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
-			groupService.updateByPrimaryKey(record);
+			Group record = new Group();
+			record.setId(id);
+			record.setName(name);
+			record.setTitle(title);
+			record.setTags(tags);
+			record.setDescription(description);
+			record.setState(state);
+			groupService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

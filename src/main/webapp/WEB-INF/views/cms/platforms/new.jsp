@@ -21,7 +21,7 @@
       <div class="cms-mb5">描述:</div>
       <input class="easyui-textbox" name="description" data-options="multiline:true" style="width:100%;height:64px">
     </div>
-    <button class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="platformsAddSubmitForm()" style="width:100%;height:32px">提交</button>
+    <button class="easyui-linkbutton" onclick="platformsAddSubmitForm()" style="width:100%;height:32px">创建</button>
   </form>
   </div>
 </div>
@@ -29,14 +29,7 @@
 function platformsAddSubmitForm(){
   $('#platforms-add-form').form({
     success: function(data) {
-      var r = $.parseJSON(data);
-      if (r.success) {
-        $.messager.alert("信息提示", "新建成功！", "info");
-        platformsEL.addWin.window('close'); // 关闭窗口
-        platformsEL.dg.datagrid('reload',{}); // 重新加载
-      } else {
-        $.messager.alert("错误提示", r.error.message, "error");
-      }
+    	CMS.addSubmitHandler(data, platformsEL);
     }
   });
 }

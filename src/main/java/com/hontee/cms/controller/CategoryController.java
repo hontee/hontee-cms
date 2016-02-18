@@ -1,6 +1,8 @@
 package com.hontee.cms.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
+import com.hontee.cms.easyui.vo.ComboBox;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -49,19 +51,25 @@ public class CategoryController {
 	 * @throws BusinessException
 	 */
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Category> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Category> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		CategoryExample example = new CategoryExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Category> pageInfo = categoryService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Category> pageInfo = categoryService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+	}
+	
+	@RequestMapping(value = "/comboGrid")
+	public @ResponseBody List<ComboBox> comboGrid() throws Exception {
+		CategoryExample example = new CategoryExample();
+		example.createCriteria().andParentIsNull().andStateEqualTo((byte)1); // parent is null and state = 1
+		List<Category> list = categoryService.findByExample(example);
+		List<ComboBox> boxes = new ArrayList<>();
+		boxes.add(new ComboBox(0L, "无"));
+		list.forEach((c) -> boxes.add(new ComboBox(c.getId(), c.getTitle())));
+		return boxes;
 	}
 	
 	/**
@@ -101,15 +109,32 @@ public class CategoryController {
 		return "cms/cates/new";
 	}
 
+	/**
+	 * 新建分类提交
+	 * @param name
+	 * @param title
+	 * @param description
+	 * @param parent
+	 * @param state
+	 * @return
+	 */
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
+	public @ResponseBody Result add(
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description,
+			@RequestParam(defaultValue = "0") Long parent, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		Category record = new Category();
-		/*record.setCreateBy(createBy);
+		record.setCreateBy(1L); // 创建人
 		record.setDescription(description);
 		record.setName(name);
-		record.setParent(parent);
 		record.setState(state);
-		record.setTitle(title);*/
+		record.setTitle(title);
+		if (parent != 0L) {
+			record.setParent(parent);
+		}
+		
 		try {
 			categoryService.addSelective(record);
 			return ResultBuilder.ok();
@@ -141,17 +166,38 @@ public class CategoryController {
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.GET)
 	public String editPage(@PathVariable Long id, Model model) {
 		try {
-			model.addAttribute("record", findById(id));
+			Category record = findById(id);
+			if (record.getParent() == null) {
+				record.setParent(0L);
+			}
+			model.addAttribute("record", record);
 		} catch (Exception e) {
-			// TODO
 		}
-		return "cms/groups/edit";
+		return "cms/cates/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Category record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description,
+			@RequestParam(defaultValue = "0") Long parent, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
-			categoryService.updateByPrimaryKey(record);
+			Category record = new Category();
+			record.setId(id);
+			record.setDescription(description);
+			record.setName(name);
+			record.setParent(parent);
+			record.setState(state);
+			record.setTitle(title);
+			if (parent != 0L) {
+				record.setParent(parent);
+			} else {
+				record.setParent(null);
+			}
+			
+			categoryService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

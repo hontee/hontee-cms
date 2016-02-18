@@ -1,6 +1,7 @@
 package com.hontee.cms.controller;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
 import com.hontee.commons.db.entity.Post;
 import com.hontee.commons.db.entity.PostExample;
 import com.hontee.commons.exception.BusinessException;
+import com.hontee.commons.http.FetchUtils;
+import com.hontee.commons.http.FetchUtils.WebModel;
 import com.hontee.commons.service.PostService;
 import com.hontee.commons.support.Pagination;
 
@@ -37,18 +39,13 @@ public class PostController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Post> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Post> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		PostExample example = new PostExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Post> pageInfo = postService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Post> pageInfo = postService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -62,28 +59,43 @@ public class PostController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		return "cms/posts/view";
 	}
 
+	@RequestMapping(value = "/share", method = RequestMethod.GET)
+	public String sharePage() {
+		return "cms/posts/share";
+	}
+	
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
-	public String addPage() {
+	public String addPage(@RequestParam String url, Model model) {
+		WebModel wm = FetchUtils.connect(url);
+		model.addAttribute("web", wm);
 		return "cms/posts/new";
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
-		Post record = new Post();
-		/*record.setCreateBy(createBy);
-		record.setDescription(description);
-		record.setName(name);
-		record.setParent(parent);
-		record.setState(state);
-		record.setTitle(title);*/
+	public @ResponseBody Result add(
+			@RequestParam String url, 
+			@RequestParam String title, 
+			@RequestParam String tags, 
+			@RequestParam String description) {
 		try {
+			Post record = new Post();
+			record.setCatId(1L);
+			record.setCreateBy(1L);
+			record.setDescription(description);
+			record.setTags(tags);
+			record.setName(UUID.randomUUID().toString());
+			record.setPlatforms("Web");
+			record.setState((byte)1);
+			record.setTitle(title);
+			record.setUrl(url);
+			record.setHit(0);
+			record.setStars(0);
 			postService.addSelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
@@ -117,15 +129,24 @@ public class PostController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO
 		}
 		return "cms/posts/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Post record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String title, 
+			@RequestParam String tags, 
+			@RequestParam String description,
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
-			postService.updateByPrimaryKey(record);
+			Post record = new Post();
+			record.setId(id);
+			record.setDescription(description);
+			record.setTags(tags);
+			record.setState(state);
+			record.setTitle(title);
+			postService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

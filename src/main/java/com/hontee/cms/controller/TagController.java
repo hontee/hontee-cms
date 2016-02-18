@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -37,18 +36,13 @@ public class TagController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Tag> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Tag> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		TagExample example = new TagExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Tag> pageInfo = tagService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Tag> pageInfo = tagService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -75,14 +69,16 @@ public class TagController {
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
+	public @ResponseBody Result add(
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		Tag record = new Tag();
-		/*record.setCreateBy(createBy);
 		record.setDescription(description);
 		record.setName(name);
-		record.setParent(parent);
 		record.setState(state);
-		record.setTitle(title);*/
+		record.setTitle(title);
 		try {
 			tagService.addSelective(record);
 			return ResultBuilder.ok();
@@ -117,15 +113,24 @@ public class TagController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO
 		}
 		return "cms/tags/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Tag record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
-			tagService.updateByPrimaryKey(record);
+			Tag record = new Tag();
+			record.setId(id);
+			record.setDescription(description);
+			record.setName(name);
+			record.setState(state);
+			record.setTitle(title);
+			tagService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

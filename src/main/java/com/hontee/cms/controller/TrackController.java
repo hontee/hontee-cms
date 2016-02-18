@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -37,18 +36,13 @@ public class TrackController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Track> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Track> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		TrackExample example = new TrackExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andExceptionEqualTo(title);
+			example.createCriteria().andExceptionLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Track> pageInfo = trackService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Track> pageInfo = trackService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -56,41 +50,16 @@ public class TrackController {
 		return trackService.findByPrimaryKey(id);
 	}
 
-	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public String view(@PathVariable Long id, Model model) {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		return "cms/tracks/view";
 	}
-
-	@RequestMapping(value = "/new", method = RequestMethod.GET)
-	public String addPage() {
-		return "cms/tracks/new";
-	}
-	
-	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
-		Track record = new Track();
-		/*record.setCreateBy(createBy);
-		record.setDescription(description);
-		record.setName(name);
-		record.setParent(parent);
-		record.setState(state);
-		record.setTitle(title);*/
-		try {
-			trackService.addSelective(record);
-			return ResultBuilder.ok();
-		} catch (Exception e) {
-			return ResultBuilder.failed(e);
-		}
-	}
-
 	
 	@RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
 	public @ResponseBody Result delete(@PathVariable Long id) {
@@ -112,23 +81,4 @@ public class TrackController {
 		}
 	}
 
-	@RequestMapping(value = "/{id}/edit", method = RequestMethod.GET)
-	public String editPage(@PathVariable Long id, Model model) {
-		try {
-			model.addAttribute("record", findById(id));
-		} catch (Exception e) {
-			// TODO
-		}
-		return "cms/tracks/edit";
-	}
-
-	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Track record) {
-		try {
-			trackService.updateByPrimaryKey(record);
-			return ResultBuilder.ok();
-		} catch (Exception e) {
-			return ResultBuilder.failed(e);
-		}
-	}
 }

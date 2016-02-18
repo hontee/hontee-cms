@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
@@ -38,18 +37,13 @@ public class MenuController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<Menu> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<Menu> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		MenuExample example = new MenuExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andTitleLike(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<Menu> pageInfo = menuService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<Menu> pageInfo = menuService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -61,14 +55,12 @@ public class MenuController {
 	private Menu findById(Long id) throws Exception {
 		return menuService.findByPrimaryKey(id);
 	}
-
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public String view(@PathVariable Long id, Model model) {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -81,14 +73,19 @@ public class MenuController {
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
+	public @ResponseBody Result add(
+			@RequestParam String name, 
+			@RequestParam String title, 
+			@RequestParam String url,
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		Menu record = new Menu();
-		/*record.setCreateBy(createBy);
+		record.setCreateBy(1L);
 		record.setDescription(description);
 		record.setName(name);
-		record.setParent(parent);
 		record.setState(state);
-		record.setTitle(title);*/
+		record.setTitle(title);
+		record.setUrl(url);
 		try {
 			menuService.addSelective(record);
 			return ResultBuilder.ok();
@@ -123,15 +120,26 @@ public class MenuController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO
 		}
 		return "cms/menus/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, Menu record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name, 
+			@RequestParam String title, 
+			@RequestParam String url,
+			String description, 
+			@RequestParam(defaultValue = "1") Byte state) {
+		Menu record = new Menu();
+		record.setId(id);
+		record.setDescription(description);
+		record.setName(name);
+		record.setState(state);
+		record.setTitle(title);
+		record.setUrl(url);
 		try {
-			menuService.updateByPrimaryKey(record);
+			menuService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

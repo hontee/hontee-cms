@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.hontee.cms.easyui.vo.DataGrid;
 import com.hontee.cms.easyui.vo.Result;
 import com.hontee.cms.easyui.vo.ResultBuilder;
 import com.hontee.commons.db.entity.User;
 import com.hontee.commons.db.entity.UserExample;
 import com.hontee.commons.exception.BusinessException;
+import com.hontee.commons.security.EncryptUtils;
 import com.hontee.commons.service.UserService;
 import com.hontee.commons.support.Pagination;
 
@@ -37,18 +37,13 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/list")
-	public @ResponseBody DataGrid<User> dataGrid(
-			@RequestParam(required = false) String title, 
-			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "10") Integer rows) throws BusinessException {
-		
+	public @ResponseBody DataGrid<User> dataGrid(@RequestParam(required = false) String title, Pagination p)
+			throws BusinessException {
 		UserExample example = new UserExample();
 		if (StringUtils.isNotBlank(title)) {
-			// 支持标题的模糊查询
-			example.createCriteria().andNameEqualTo(title);
+			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
-		PageInfo<User> pageInfo = userService.findByExample(example, new Pagination(page, rows));
-		Preconditions.checkNotNull(pageInfo);
+		PageInfo<User> pageInfo = userService.findByExample(example, p);
 		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
 	}
 	
@@ -74,15 +69,22 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
-	public @ResponseBody Result add() {
-		User record = new User();
-		/*record.setCreateBy(createBy);
-		record.setDescription(description);
-		record.setName(name);
-		record.setParent(parent);
-		record.setState(state);
-		record.setTitle(title);*/
+	public @ResponseBody Result add(
+			@RequestParam String name, 
+			@RequestParam String email, 
+			@RequestParam String password, 
+			@RequestParam(defaultValue = "1") Byte userType, 
+			@RequestParam(defaultValue = "1") Byte state) {
 		try {
+			User record = new User();
+			record.setEmail(email);
+			record.setIsEmailSet((byte)0);
+			record.setSalt(EncryptUtils.getRandomSalt()); // 随机盐值
+			record.setPassword(EncryptUtils.encrypt(password, record.getSalt())); // 密码加密
+			record.setUserType(userType);
+			record.setName(name);
+			record.setState(state);
+			record.setTitle(name);
 			userService.addSelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
@@ -90,7 +92,6 @@ public class UserController {
 		}
 	}
 
-	
 	@RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
 	public @ResponseBody Result delete(@PathVariable Long id) {
 		try {
@@ -116,15 +117,28 @@ public class UserController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO
 		}
 		return "cms/users/edit";
 	}
 
 	@RequestMapping(value = "/{id}/edit", method = RequestMethod.POST)
-	public @ResponseBody Result edit(@PathVariable Long id, User record) {
+	public @ResponseBody Result edit(@PathVariable Long id, 
+			@RequestParam String name, 
+			@RequestParam String title, 
+			String description, 
+			@RequestParam String email, 
+			@RequestParam(defaultValue = "1") Byte userType, 
+			@RequestParam(defaultValue = "1") Byte state ) {
 		try {
-			userService.updateByPrimaryKey(record);
+			User record = new User();
+			record.setId(id);
+			record.setEmail(email);
+			record.setUserType(userType);
+			record.setName(name);
+			record.setState(state);
+			record.setTitle(title);
+			record.setDescription(description);
+			userService.updateByPrimaryKeySelective(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);
