@@ -146,7 +146,7 @@ public class PostController {
 			record.setTags(tags);
 			record.setState(state);
 			record.setTitle(title);
-			postService.updateByPrimaryKeySelective(record);
+			postService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

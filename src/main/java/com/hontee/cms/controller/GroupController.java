@@ -133,7 +133,7 @@ public class GroupController {
 			record.setTags(tags);
 			record.setDescription(description);
 			record.setState(state);
-			groupService.updateByPrimaryKeySelective(record);
+			groupService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

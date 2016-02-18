@@ -129,7 +129,7 @@ public class RoleController {
 			record.setName(name);
 			record.setState(state);
 			record.setTitle(title);
-			roleService.updateByPrimaryKeySelective(record);
+			roleService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

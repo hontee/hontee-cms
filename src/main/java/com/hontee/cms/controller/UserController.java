@@ -138,7 +138,7 @@ public class UserController {
 			record.setState(state);
 			record.setTitle(title);
 			record.setDescription(description);
-			userService.updateByPrimaryKeySelective(record);
+			userService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

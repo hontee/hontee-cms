@@ -197,7 +197,7 @@ public class CategoryController {
 				record.setParent(null);
 			}
 			
-			categoryService.updateByPrimaryKeySelective(record);
+			categoryService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

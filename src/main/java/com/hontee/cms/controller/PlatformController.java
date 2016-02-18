@@ -136,7 +136,7 @@ public class PlatformController {
 			record.setTitle(title);
 			record.setState(state);
 			record.setDescription(description);
-			platformService.updateByPrimaryKeySelective(record);
+			platformService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

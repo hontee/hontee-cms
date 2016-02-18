@@ -130,7 +130,7 @@ public class TagController {
 			record.setName(name);
 			record.setState(state);
 			record.setTitle(title);
-			tagService.updateByPrimaryKeySelective(record);
+			tagService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

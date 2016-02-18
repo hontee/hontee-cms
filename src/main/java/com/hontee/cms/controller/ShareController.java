@@ -144,7 +144,7 @@ public class ShareController {
 			record.setKeywords(keywords);
 			record.setState(state);
 			record.setTitle(title);
-			shareService.updateByPrimaryKeySelective(record);
+			shareService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

@@ -131,7 +131,7 @@ public class PermissionController {
 		record.setState(state);
 		record.setTitle(title);
 		try {
-			permissionService.updateByPrimaryKeySelective(record);
+			permissionService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);
