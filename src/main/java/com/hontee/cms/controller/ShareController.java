@@ -94,7 +94,7 @@ public class ShareController {
 			record.setState((byte)1);
 			record.setTitle(title);
 			record.setUrl(url);
-			shareService.addSelective(record);
+			shareService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

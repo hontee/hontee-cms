@@ -81,7 +81,7 @@ public class PermissionController {
 		record.setState(state);
 		record.setTitle(title);
 		try {
-			permissionService.addSelective(record);
+			permissionService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

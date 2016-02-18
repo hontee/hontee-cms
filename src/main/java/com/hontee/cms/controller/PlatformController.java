@@ -85,7 +85,7 @@ public class PlatformController {
 		record.setState(state);
 		record.setDescription(description);
 		try {
-			platformService.addSelective(record);
+			platformService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

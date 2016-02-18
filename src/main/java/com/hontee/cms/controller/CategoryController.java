@@ -136,7 +136,7 @@ public class CategoryController {
 		}
 		
 		try {
-			categoryService.addSelective(record);
+			categoryService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

@@ -80,7 +80,7 @@ public class TagController {
 		record.setState(state);
 		record.setTitle(title);
 		try {
-			tagService.addSelective(record);
+			tagService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

@@ -87,7 +87,7 @@ public class MenuController {
 		record.setTitle(title);
 		record.setUrl(url);
 		try {
-			menuService.addSelective(record);
+			menuService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

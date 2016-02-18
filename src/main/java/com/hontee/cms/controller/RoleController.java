@@ -79,7 +79,7 @@ public class RoleController {
 		record.setState(state);
 		record.setTitle(title);
 		try {
-			roleService.addSelective(record);
+			roleService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

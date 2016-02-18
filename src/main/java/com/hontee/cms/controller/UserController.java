@@ -85,7 +85,7 @@ public class UserController {
 			record.setName(name);
 			record.setState(state);
 			record.setTitle(name);
-			userService.addSelective(record);
+			userService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

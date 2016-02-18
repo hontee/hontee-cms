@@ -96,7 +96,7 @@ public class PostController {
 			record.setUrl(url);
 			record.setHit(0);
 			record.setStars(0);
-			postService.addSelective(record);
+			postService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);

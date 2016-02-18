@@ -81,7 +81,7 @@ public class GroupController {
 		record.setTags(tags);
 		record.setTitle(title);
 		try {
-			groupService.addSelective(record);
+			groupService.add(record);
 			return ResultBuilder.ok();
 		} catch (Exception e) {
 			return ResultBuilder.failed(e);
