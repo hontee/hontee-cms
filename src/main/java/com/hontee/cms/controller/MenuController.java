@@ -77,6 +77,7 @@ public class MenuController {
 			@RequestParam String name, 
 			@RequestParam String title, 
 			@RequestParam String url,
+			@RequestParam String groupField, 
 			String description, 
 			@RequestParam(defaultValue = "1") Byte state) {
 		Menu record = new Menu();
@@ -86,6 +87,7 @@ public class MenuController {
 		record.setState(state);
 		record.setTitle(title);
 		record.setUrl(url);
+		record.setGroupField(groupField);
 		try {
 			menuService.add(record);
 			return ResultBuilder.ok();
@@ -94,7 +96,6 @@ public class MenuController {
 		}
 	}
 
-	
 	@RequestMapping(value = "/{id}/delete", method = RequestMethod.POST)
 	public @ResponseBody Result delete(@PathVariable Long id) {
 		try {
@@ -129,6 +130,7 @@ public class MenuController {
 			@RequestParam String name, 
 			@RequestParam String title, 
 			@RequestParam String url,
+			@RequestParam String groupField,
 			String description, 
 			@RequestParam(defaultValue = "1") Byte state) {
 		Menu record = new Menu();
@@ -138,6 +140,7 @@ public class MenuController {
 		record.setState(state);
 		record.setTitle(title);
 		record.setUrl(url);
+		record.setGroupField(groupField);
 		try {
 			menuService.updateByPrimaryKey(record);
 			return ResultBuilder.ok();

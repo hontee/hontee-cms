@@ -4,8 +4,8 @@
 <title>Hontee.CMS</title>
 </head>
 <body class="easyui-layout">
-  <div data-options="region:'north'" style="height:80px;"></div>
-  <div data-options="region:'west',title:'菜单管理'" style="width:150px;">
+<!--   <div data-options="region:'north'" style="height:80px;"></div>
+ -->  <div data-options="region:'west',title:'菜单管理'" style="width:180px;">
     <div id="menu-datalist"></div>
   </div>
   <div data-options="region:'center'">
@@ -37,6 +37,7 @@ var datalist = $("#menu-datalist").datalist({
     border:false,
     valueField: 'name',
     textField: 'title',
+    groupField: 'groupField',
     textFormatter: function(value, row, index) {
     	return "<span style='padding-left: 20px;'>" + value + "</span>"
     },

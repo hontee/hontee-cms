@@ -15,6 +15,10 @@
       <input class="easyui-textbox" name="url" data-options="required:true, prompt:'唯一的相对路径，如：/cms/menus'" style="width:100%;height:32px">
     </div>
     <div class="cms-mb20">
+      <div class="cms-mb5">分组:</div>
+      <input class="easyui-textbox" name="groupField" data-options="required:true, prompt:'如：系统, 用户, 数据, 权限'" style="width:100%;height:32px">
+    </div>
+    <div class="cms-mb20">
       <div class="cms-mb5">状态:</div>
       <select class="easyui-combobox" data-options="panelHeight:'auto',editable: false" name="state" style="width:100%; height:32px">
         <option value="1">启动</option>

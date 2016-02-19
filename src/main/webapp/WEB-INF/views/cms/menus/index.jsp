@@ -49,7 +49,7 @@ menusEL.dg.datagrid({
         {field:'title',title:'标题',width:100, sortable: true},
         {field:'url',title:'链接',width:100},
         {field:'description',title:'描述',width:100},
-        /* {field:'parent',title:'上级菜单',width:100, sortable: true}, */
+        {field:'groupField',title:'分组',width:100, sortable: true},
         {field:'state',title:'状态',width:100, sortable: true, formatter: function(value,row,index) {
         	if (value == '1') {
 				return '启用';
