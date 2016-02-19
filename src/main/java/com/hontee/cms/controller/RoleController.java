@@ -43,7 +43,7 @@ public class RoleController {
 			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<Role> pageInfo = roleService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private Role findById(Long id) throws Exception {

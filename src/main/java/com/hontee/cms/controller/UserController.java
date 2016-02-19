@@ -44,7 +44,7 @@ public class UserController {
 			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<User> pageInfo = userService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private User findById(Long id) throws Exception {

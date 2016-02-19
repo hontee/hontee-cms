@@ -44,7 +44,7 @@ public class GroupController {
 			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<Group> pageInfo = groupService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private Group findById(Long id) throws Exception {

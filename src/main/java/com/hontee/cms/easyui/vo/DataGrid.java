@@ -3,6 +3,9 @@ package com.hontee.cms.easyui.vo;
 import java.io.Serializable;
 import java.util.List;
 
+import com.github.pagehelper.PageInfo;
+import com.google.common.base.Preconditions;
+
 /**
  * 定义EasyUI的DataGrid数据类型
  * @author larry.qi
@@ -22,10 +25,10 @@ public class DataGrid<T> implements Serializable {
 	 */
 	private List<T> rows;
 
-	public DataGrid(long total, List<T> rows) {
-		super();
-		this.total = total;
-		this.rows = rows;
+	public DataGrid(PageInfo<T> p) {
+		Preconditions.checkNotNull(p, "获取数据失败.");
+		this.total = p.getTotal();
+		this.rows = p.getList();
 	}
 
 	public DataGrid() {

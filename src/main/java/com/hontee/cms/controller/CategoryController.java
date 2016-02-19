@@ -58,7 +58,7 @@ public class CategoryController {
 			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<Category> pageInfo = categoryService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	@RequestMapping(value = "/comboGrid")
@@ -93,7 +93,6 @@ public class CategoryController {
 		try {
 			model.addAttribute("record", findById(id));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

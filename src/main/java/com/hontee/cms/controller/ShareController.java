@@ -46,7 +46,7 @@ public class ShareController {
 			example.createCriteria().andTitleLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<Share> pageInfo = shareService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private Share findById(Long id) throws Exception {

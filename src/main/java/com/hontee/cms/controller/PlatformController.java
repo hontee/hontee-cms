@@ -47,7 +47,7 @@ public class PlatformController {
 			example.createCriteria().andTitleLike("%" + title + "%");
 		}
 		PageInfo<Platform> pageInfo = platformService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private Platform findById(Long id) throws Exception {

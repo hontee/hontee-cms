@@ -43,7 +43,7 @@ public class TrackController {
 			example.createCriteria().andExceptionLike("%" + title + "%"); // 模糊查询
 		}
 		PageInfo<Track> pageInfo = trackService.findByExample(example, p);
-		return new DataGrid<>(pageInfo.getTotal(), pageInfo.getList());
+		return new DataGrid<>(pageInfo);
 	}
 	
 	private Track findById(Long id) throws Exception {
