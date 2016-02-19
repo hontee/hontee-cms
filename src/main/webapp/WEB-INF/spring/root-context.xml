@@ -8,5 +8,6 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
 	
 	<import resource="classpath*:/META-INF/spring/commons-context.xml"/>
+	<import resource="classpath*:/META-INF/spring/cms-shiro.xml"/>
   
 </beans>
