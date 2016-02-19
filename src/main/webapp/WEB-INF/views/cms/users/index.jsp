@@ -73,10 +73,10 @@ usersEL.dg.datagrid({
 			}
         }},
         {field:'created',title:'创建时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
         {field:'lastModified',title:'最后更新时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }}
     ]],
  	// 当选择一行时触发

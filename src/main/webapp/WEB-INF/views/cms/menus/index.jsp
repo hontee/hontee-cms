@@ -58,12 +58,15 @@ menusEL.dg.datagrid({
 			}
         }},
         {field:'created',title:'创建时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
         {field:'lastModified',title:'最后更新时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
-        {field:'createBy',title:'创建人',width:100, sortable: true}
+        {field:'createBy',title:'创建人',width:100, sortable: true, formatter: function(value,row,index) {
+        	return row.extCreateName;
+        }},
+        {field:'extCreateName',title:'用户名', hidden: true}
     ]],
  	// 当选择一行时触发
     onSelect: function(index,row) {

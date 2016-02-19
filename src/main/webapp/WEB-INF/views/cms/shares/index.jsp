@@ -50,7 +50,9 @@ sharesEL.dg.datagrid({
         {field:'description',title:'描述',width:100},
         {field:'keywords',title:'标签',width:100},
         {field:'url',title:'链接',width:100},
-        {field:'catId',title:'类别ID',width:100, sortable: true},
+        {field:'catId',title:'所属分类',width:100, sortable: true, formatter: function(value,row,index) {
+        	return row.extCatTitle;
+        }},
         {field:'platforms',title:'支持平台',width:100},
         {field:'state',title:'状态',width:100, sortable: true, formatter: function(value,row,index) {
         	if (value == '1') {
@@ -60,12 +62,16 @@ sharesEL.dg.datagrid({
 			}
         }},
         {field:'created',title:'创建时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
         {field:'lastModified',title:'最后更新时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
-        {field:'createBy',title:'创建人',width:100, sortable: true}
+        {field:'createBy',title:'创建人',width:100, sortable: true, formatter: function(value,row,index) {
+        	return row.extCreateName;
+        }},
+        {field:'extCreateName',title:'用户名', hidden: true},
+        {field:'extCatTitle',title:'分类标题', hidden: true}
     ]],
  	// 当选择一行时触发
     onSelect: function(index,row) {

@@ -48,7 +48,10 @@ catesEL.dg.datagrid({
         {field:'name',title:'名称',width:100, sortable: true},
         {field:'title',title:'标题',width:100, sortable: true},
         {field:'description',title:'描述',width:100},
-        {field:'parent',title:'所属分类',width:100, sortable: true},
+        {field:'description',title:'描述',width:100},
+        {field:'parent',title:'所属分类',width:100, sortable: true, formatter: function(value,row,index) {
+        	return row.extParentTitle;
+        }},
         {field:'state',title:'状态',width:100, sortable: true, formatter: function(value,row,index) {
         	if (value == '1') {
 				return '启用';
@@ -57,12 +60,16 @@ catesEL.dg.datagrid({
 			}
         }},
         {field:'created',title:'创建时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
         {field:'lastModified',title:'最后更新时间',width:100, sortable: true, formatter: function(value,row,index) {
-        	return new Date(value).format('yyyy-MM-dd HH:mm');  
+        	return new Date(value).format();  
         }},
-        {field:'createBy',title:'创建人',width:100, sortable: true}
+        {field:'createBy',title:'创建人',width:100, sortable: true, formatter: function(value,row,index) {
+        	return row.extCreateName;
+        }},
+        {field:'extParentTitle',title:'分类标题', hidden: true},
+        {field:'extCreateName',title:'用户名', hidden: true},
     ]],
  	// 当选择一行时触发
     onSelect: function(index,row) {
